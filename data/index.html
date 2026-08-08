@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChurnScope — Live Churn Risk Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1620;
+    --panel:#16202C;
+    --panel-alt:#1B2733;
+    --hairline:#24313F;
+    --text:#E8EDF2;
+    --muted:#8CA0B3;
+    --safe:#3DDC97;
+    --watch:#F2B84B;
+    --risk:#F2495C;
+    --focus:#5EB1FF;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #14202c 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1040px;margin:0 auto;padding:20px 20px 40px;}
+
+  .topbar{
+    display:flex;align-items:baseline;justify-content:space-between;
+    flex-wrap:wrap;gap:6px 16px;
+    padding:6px 4px 20px;
+    border-bottom:1px solid var(--hairline);
+    margin-bottom:24px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-dot{
+    width:9px;height:9px;border-radius:50%;background:var(--safe);
+    box-shadow:0 0 0 3px rgba(61,220,151,0.15);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;} 50%{opacity:.45;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .brand-dot{animation:none;}
+  }
+  .brand-name{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;font-size:22px;letter-spacing:0.2px;
+  }
+  .brand-meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--muted);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+  @media (min-width:860px){
+    .grid{grid-template-columns:380px 1fr;align-items:start;}
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:20px 20px 22px;
+  }
+  .panel-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;font-weight:600;
+    margin:0 0 16px;
+    color:var(--text);
+  }
+  .group-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--muted);margin:18px 0 10px;
+    font-weight:600;
+  }
+  .field-group:first-of-type .group-label{margin-top:0;}
+
+  .field{display:block;margin-bottom:14px;}
+  .field-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:13px;margin-bottom:6px;color:var(--text);
+  }
+  .field-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--muted);
+  }
+
+  input[type="range"]{
+    -webkit-appearance:none;appearance:none;
+    width:100%;height:4px;border-radius:2px;
+    background:var(--hairline);outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:16px;height:16px;border-radius:50%;
+    background:var(--focus);
+    border:2px solid var(--panel);
+    cursor:pointer;
+    box-shadow:0 0 0 3px rgba(94,177,255,0.18);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;
+    background:var(--focus);border:2px solid var(--panel);cursor:pointer;
+  }
+  input[type="range"]:focus-visible::-webkit-slider-thumb{
+    box-shadow:0 0 0 4px rgba(94,177,255,0.35);
+  }
+
+  .select{
+    width:100%;padding:9px 10px;
+    background:var(--panel-alt);
+    border:1px solid var(--hairline);
+    color:var(--text);
+    border-radius:8px;
+    font-family:'Inter',sans-serif;font-size:13px;
+  }
+  .select:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .segmented{
+    display:flex;gap:6px;flex-wrap:wrap;
+  }
+  .segmented button{
+    flex:1 1 auto;
+    padding:8px 10px;
+    background:var(--panel-alt);
+    border:1px solid var(--hairline);
+    color:var(--muted);
+    border-radius:8px;
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+    cursor:pointer;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .segmented button.active{
+    background:rgba(94,177,255,0.14);
+    border-color:var(--focus);
+    color:var(--text);
+  }
+  .segmented button:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;}
+  .toggle{
+    padding:8px 12px;
+    background:var(--panel-alt);
+    border:1px solid var(--hairline);
+    color:var(--muted);
+    border-radius:999px;
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+    cursor:pointer;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .toggle.active{
+    background:rgba(61,220,151,0.14);
+    border-color:var(--safe);
+    color:var(--text);
+  }
+  .toggle:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+
+  /* Output panel */
+  .gauge-wrap{
+    position:relative;
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:6px;
+  }
+  .gauge{width:100%;max-width:340px;height:auto;}
+  .gauge-readout{
+    text-align:center;margin-top:-8px;
+  }
+  .prob-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:44px;font-weight:600;line-height:1;
+    letter-spacing:-0.02em;
+  }
+  .risk-band{
+    margin-top:6px;
+    font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  .factors{margin-top:22px;}
+  .factor-row{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 0;
+    border-top:1px solid var(--hairline);
+  }
+  .factor-row:first-child{border-top:none;}
+  .factor-label{
+    flex:1;font-size:13px;color:var(--text);
+  }
+  .factor-bars{display:flex;gap:2px;align-items:flex-end;height:14px;}
+  .factor-bars span{
+    display:block;width:4px;border-radius:1px;
+    background:var(--hairline);
+  }
+  .factor-bars span:nth-child(1){height:5px;}
+  .factor-bars span:nth-child(2){height:8px;}
+  .factor-bars span:nth-child(3){height:11px;}
+  .factor-bars span:nth-child(4){height:14px;}
+
+  .action-card{
+    margin-top:22px;
+    padding:14px 16px;
+    border-radius:10px;
+    border:1px solid var(--hairline);
+    background:var(--panel-alt);
+  }
+  .action-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--muted);font-weight:600;margin-bottom:6px;
+  }
+  .action-text{font-size:13.5px;line-height:1.5;}
+
+  .foot{
+    margin-top:26px;
+    font-size:12px;color:var(--muted);
+    line-height:1.6;
+    padding:0 4px;
+  }
+  .foot code{
+    font-family:'JetBrains Mono',monospace;
+    background:var(--panel-alt);
+    padding:1px 5px;border-radius:4px;
+    border:1px solid var(--hairline);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span class="brand-name">ChurnScope</span>
+    </div>
+    <div class="brand-meta">LOGISTIC REGRESSION · TEST ROC-AUC 0.80 · LIVE IN-BROWSER INFERENCE</div>
+  </header>
+
+  <main class="grid">
+
+    <section class="panel panel-input" aria-label="Customer profile controls">
+      <h2 class="panel-title">Customer profile</h2>
+
+      <div class="field-group">
+        <div class="group-label">Account</div>
+        <label class="field">
+          <span class="field-row"><span>Age</span><span class="field-value" id="val-age">34</span></span>
+          <input type="range" id="age" min="18" max="85" value="34">
+        </label>
+        <label class="field">
+          <span class="field-row"><span>Tenure</span><span class="field-value" id="val-tenure">3 mo</span></span>
+          <input type="range" id="tenure_months" min="0" max="72" value="3">
+        </label>
+        <div class="field">
+          <span class="field-row"><span>Contract</span></span>
+          <div class="segmented" data-target="contract_type">
+            <button data-value="Month-to-month" class="active">Month-to-month</button>
+            <button data-value="One year">One year</button>
+            <button data-value="Two year">Two year</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="group-label">Service</div>
+        <div class="field">
+          <span class="field-row"><span>Internet</span></span>
+          <div class="segmented" data-target="internet_service">
+            <button data-value="DSL">DSL</button>
+            <button data-value="Fiber optic" class="active">Fiber optic</button>
+            <button data-value="No internet service">None</button>
+          </div>
+        </div>
+        <label class="field">
+          <span class="field-row"><span>Avg. usage</span><span class="field-value" id="val-usage">340 GB/mo</span></span>
+          <input type="range" id="avg_monthly_usage_gb" min="0" max="500" value="340">
+        </label>
+        <div class="toggle-row">
+          <button class="toggle" data-target="tech_support" data-value="Yes">Tech support</button>
+          <button class="toggle" data-target="online_security" data-value="Yes">Online security</button>
+          <button class="toggle active" data-target="streaming_service" data-value="Yes">Streaming</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="group-label">Support &amp; satisfaction</div>
+        <label class="field">
+          <span class="field-row"><span>Support calls (90d)</span><span class="field-value" id="val-calls">3</span></span>
+          <input type="range" id="num_support_calls" min="0" max="10" value="3">
+        </label>
+        <label class="field">
+          <span class="field-row"><span>Satisfaction</span><span class="field-value" id="val-sat">2 / 5</span></span>
+          <input type="range" id="satisfaction_score" min="1" max="5" value="2">
+        </label>
+      </div>
+
+      <div class="field-group">
+        <div class="group-label">Billing</div>
+        <label class="field">
+          <span class="field-row"><span>Monthly charges</span><span class="field-value" id="val-mc">$89.50</span></span>
+          <input type="range" id="monthly_charges" min="18" max="150" step="0.5" value="89.5">
+        </label>
+        <div class="field">
+          <span class="field-row"><span>Payment method</span></span>
+          <select id="payment_method" class="select">
+            <option>Bank transfer</option>
+            <option>Credit card</option>
+            <option selected>Electronic check</option>
+            <option>Mailed check</option>
+          </select>
+        </div>
+        <div class="toggle-row">
+          <button class="toggle active" data-target="paperless_billing" data-value="Yes">Paperless billing</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-output" aria-label="Churn risk read">
+      <h2 class="panel-title">Signal read</h2>
+
+      <div class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 220 128" id="gauge-svg" role="img" aria-label="Churn risk gauge"></svg>
+        <div class="gauge-readout">
+          <div class="prob-value" id="prob-value">--</div>
+          <div class="risk-band" id="risk-band">—</div>
+        </div>
+      </div>
+
+      <div class="factors">
+        <div class="group-label">Top contributing factors</div>
+        <div id="factors-list"></div>
+      </div>
+
+      <div class="action-card">
+        <div class="action-label">Recommended action</div>
+        <div class="action-text" id="action-text">—</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    Runs entirely in this browser tab, scoring with the exact coefficients exported from the trained scikit-learn pipeline (<code>models/model_export.json</code>). No data leaves the page.
+  </footer>
+</div>
+
+<script>
+const MODEL = {"feature_names":["num__age","num__tenure_months","num__monthly_charges","num__total_charges","num__num_support_calls","num__satisfaction_score","num__avg_monthly_usage_gb","num__charges_per_tenure_month","cat__contract_type_Month-to-month","cat__contract_type_One year","cat__contract_type_Two year","cat__internet_service_DSL","cat__internet_service_Fiber optic","cat__internet_service_No internet service","cat__tech_support_Yes","cat__online_security_Yes","cat__streaming_service_Yes","cat__paperless_billing_Yes","cat__payment_method_Bank transfer","cat__payment_method_Credit card","cat__payment_method_Electronic check","cat__payment_method_Mailed check"],"coefficients":[-0.004704891650132074,-0.7079056468141025,0.1662633294761561,0.06499907796840605,0.4021351157238007,-0.3468435830745612,0.10505805270192617,0.09696352493046265,1.0724250486310103,-0.2696657249605542,-1.0621826301328332,-0.2748852553877753,0.1254556952387404,-0.10999374631334037,-0.5091269429374992,-0.2996706014336566,0.022270938089780107,-0.10089924397776392,0.030249889439282456,-0.17583696956269848,0.14950752194210473,-0.26334374828106294],"intercept":-0.2825361534076174,"numeric_features":["age","tenure_months","monthly_charges","total_charges","num_support_calls","satisfaction_score","avg_monthly_usage_gb","charges_per_tenure_month"],"numeric_means":[45.14479166666667,21.403958333333332,57.809341666666676,1238.9918833333334,0.7889583333333333,3.38625,185.42970833333334,57.714818652307656],"numeric_scales":[14.368254720271256,19.218500878015014,19.451600405020592,1249.6381067695638,0.9353269027086495,0.9985293873992893,141.16362403518926,20.299061819871447],"categorical_features":["contract_type","internet_service","tech_support","online_security","streaming_service","paperless_billing","payment_method"],"categorical_categories":[["Month-to-month","One year","Two year"],["DSL","Fiber optic","No internet service"],["No","Yes"],["No","Yes"],["No","Yes"],["No","Yes"],["Bank transfer","Credit card","Electronic check","Mailed check"]],"drop_idx":[null,null,0,0,0,0,null]};
+
+const LABELS = {
+  "num__age":"Age",
+  "num__tenure_months":"Tenure",
+  "num__monthly_charges":"Monthly charges",
+  "num__total_charges":"Total charges",
+  "num__num_support_calls":"Support calls",
+  "num__satisfaction_score":"Satisfaction score",
+  "num__avg_monthly_usage_gb":"Data usage",
+  "num__charges_per_tenure_month":"Spend per tenure month",
+  "cat__contract_type_Month-to-month":"Month-to-month contract",
+  "cat__contract_type_One year":"One-year contract",
+  "cat__contract_type_Two year":"Two-year contract",
+  "cat__internet_service_DSL":"DSL internet",
+  "cat__internet_service_Fiber optic":"Fiber internet",
+  "cat__internet_service_No internet service":"No internet service",
+  "cat__tech_support_Yes":"Has tech support",
+  "cat__online_security_Yes":"Has online security",
+  "cat__streaming_service_Yes":"Has streaming",
+  "cat__paperless_billing_Yes":"Paperless billing",
+  "cat__payment_method_Bank transfer":"Pays by bank transfer",
+  "cat__payment_method_Credit card":"Pays by credit card",
+  "cat__payment_method_Electronic check":"Pays by electronic check",
+  "cat__payment_method_Mailed check":"Pays by mailed check"
+};
+
+function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+
+function buildVector(inputs){
+  const vec = [];
+  MODEL.numeric_features.forEach((feat,i)=>{
+    const z = (inputs[feat]-MODEL.numeric_means[i])/MODEL.numeric_scales[i];
+    vec.push(z);
+  });
+  MODEL.categorical_features.forEach((feat,i)=>{
+    const cats = MODEL.categorical_categories[i];
+    const dropIdx = MODEL.drop_idx[i];
+    cats.forEach((cat,ci)=>{
+      if(dropIdx!==null && ci===dropIdx) return;
+      vec.push(inputs[feat]===cat ? 1 : 0);
+    });
+  });
+  return vec;
+}
+
+function scoreWithContributions(inputs){
+  const vec = buildVector(inputs);
+  let z = MODEL.intercept;
+  const contributions = [];
+  for(let i=0;i<vec.length;i++){
+    const c = vec[i]*MODEL.coefficients[i];
+    z += c;
+    contributions.push({name: MODEL.feature_names[i], contribution: c});
+  }
+  return {probability: sigmoid(z), contributions};
+}
+
+// ---- Gauge (built as a polyline-approximated arc; avoids SVG arc-flag ambiguity) ----
+const NS = "http://www.w3.org/2000/svg";
+const gaugeSvg = document.getElementById('gauge-svg');
+const CX=110, CY=112, R=88, TRACK_W=14;
+
+function polar(cx,cy,r,angleDeg){
+  const rad = angleDeg*Math.PI/180;
+  return {x: cx + r*Math.cos(rad), y: cy - r*Math.sin(rad)};
+}
+function arcPoints(cx,cy,r,a0,a1,n){
+  const pts=[];
+  for(let i=0;i<=n;i++){
+    const a = a0 + (a1-a0)*(i/n);
+    const p = polar(cx,cy,r,a);
+    pts.push(p.x.toFixed(2)+","+p.y.toFixed(2));
+  }
+  return pts.join(" ");
+}
+function addPolyline(points,color,width){
+  const el = document.createElementNS(NS,'polyline');
+  el.setAttribute('points',points);
+  el.setAttribute('fill','none');
+  el.setAttribute('stroke',color);
+  el.setAttribute('stroke-width',width);
+  el.setAttribute('stroke-linecap','round');
+  gaugeSvg.appendChild(el);
+  return el;
+}
+
+// zone tracks: green 180->120, amber 120->60, red 60->0
+addPolyline(arcPoints(CX,CY,R,180,120,24), 'rgba(61,220,151,0.85)', TRACK_W);
+addPolyline(arcPoints(CX,CY,R,120,60,24), 'rgba(242,184,75,0.85)', TRACK_W);
+addPolyline(arcPoints(CX,CY,R,60,0,24), 'rgba(242,73,92,0.85)', TRACK_W);
+
+// scale labels
+[[180,'0%'],[90,'50%'],[0,'100%']].forEach(([ang,label])=>{
+  const p = polar(CX,CY,R+20,ang);
+  const t = document.createElementNS(NS,'text');
+  t.setAttribute('x',p.x); t.setAttribute('y',p.y+4);
+  t.setAttribute('text-anchor', ang===180?'start':(ang===0?'end':'middle'));
+  t.setAttribute('font-size','10');
+  t.setAttribute('font-family','JetBrains Mono, monospace');
+  t.setAttribute('fill','#8CA0B3');
+  t.textContent = label;
+  gaugeSvg.appendChild(t);
+});
+
+// needle
+const needle = document.createElementNS(NS,'line');
+needle.setAttribute('x1',CX); needle.setAttribute('y1',CY);
+needle.setAttribute('stroke','#E8EDF2');
+needle.setAttribute('stroke-width',3);
+needle.setAttribute('stroke-linecap','round');
+gaugeSvg.appendChild(needle);
+
+const pivot = document.createElementNS(NS,'circle');
+pivot.setAttribute('cx',CX); pivot.setAttribute('cy',CY); pivot.setAttribute('r',6);
+pivot.setAttribute('fill','#E8EDF2');
+gaugeSvg.appendChild(pivot);
+
+function setNeedle(probability){
+  const angle = 180 - probability*180;
+  const p = polar(CX,CY,R-16,angle);
+  needle.setAttribute('x2',p.x.toFixed(2));
+  needle.setAttribute('y2',p.y.toFixed(2));
+}
+
+// ---- State ----
+const state = {
+  age:34, tenure_months:3, monthly_charges:89.5,
+  num_support_calls:3, satisfaction_score:2, avg_monthly_usage_gb:340,
+  contract_type:'Month-to-month', internet_service:'Fiber optic',
+  tech_support:'No', online_security:'No', streaming_service:'Yes',
+  paperless_billing:'Yes', payment_method:'Electronic check'
+};
+
+function bandFor(p){
+  if(p>=0.66) return {key:'High', color:'var(--risk)'};
+  if(p>=0.33) return {key:'Medium', color:'var(--watch)'};
+  return {key:'Low', color:'var(--safe)'};
+}
+const ACTIONS = {
+  High: "Priority retention outreach — contact within 48 hours and consider a contract or loyalty incentive.",
+  Medium: "Proactive check-in — a support follow-up or account review within the next two weeks is likely to help.",
+  Low: "No action needed. This profile shows strong retention signals."
+};
+
+function renderFactors(contributions){
+  const top = contributions
+    .slice()
+    .sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution))
+    .slice(0,5);
+  const maxAbs = Math.max(...top.map(c=>Math.abs(c.contribution)), 0.0001);
+
+  const list = document.getElementById('factors-list');
+  list.innerHTML = '';
+  top.forEach(c=>{
+    const row = document.createElement('div');
+    row.className = 'factor-row';
+
+    const label = document.createElement('div');
+    label.className = 'factor-label';
+    label.textContent = LABELS[c.name] || c.name;
+
+    const bars = document.createElement('div');
+    bars.className = 'factor-bars';
+    const lit = Math.max(1, Math.ceil((Math.abs(c.contribution)/maxAbs)*4));
+    const color = c.contribution > 0 ? '#F2495C' : '#3DDC97';
+    for(let i=0;i<4;i++){
+      const bar = document.createElement('span');
+      if(i < lit) bar.style.background = color;
+      bars.appendChild(bar);
+    }
+
+    row.appendChild(label);
+    row.appendChild(bars);
+    list.appendChild(row);
+  });
+}
+
+function update(){
+  const total_charges = state.monthly_charges * Math.max(state.tenure_months,1);
+  const inputs = {
+    age: state.age,
+    tenure_months: state.tenure_months,
+    monthly_charges: state.monthly_charges,
+    total_charges: total_charges,
+    num_support_calls: state.num_support_calls,
+    satisfaction_score: state.satisfaction_score,
+    avg_monthly_usage_gb: state.avg_monthly_usage_gb,
+    charges_per_tenure_month: total_charges / Math.max(state.tenure_months,1),
+    contract_type: state.contract_type,
+    internet_service: state.internet_service,
+    tech_support: state.tech_support,
+    online_security: state.online_security,
+    streaming_service: state.streaming_service,
+    paperless_billing: state.paperless_billing,
+    payment_method: state.payment_method
+  };
+
+  const {probability, contributions} = scoreWithContributions(inputs);
+  const band = bandFor(probability);
+
+  document.getElementById('prob-value').textContent = Math.round(probability*100)+'%';
+  document.getElementById('prob-value').style.color = band.color;
+  document.getElementById('risk-band').textContent = band.key + ' risk';
+  document.getElementById('action-text').textContent = ACTIONS[band.key];
+  setNeedle(probability);
+  renderFactors(contributions);
+}
+
+// ---- Wire up controls ----
+function bindSlider(id, labelId, formatter){
+  const el = document.getElementById(id);
+  const lbl = document.getElementById(labelId);
+  el.addEventListener('input', ()=>{
+    const v = parseFloat(el.value);
+    state[id] = v;
+    lbl.textContent = formatter(v);
+    update();
+  });
+}
+bindSlider('age','val-age', v=>Math.round(v));
+bindSlider('tenure_months','val-tenure', v=>Math.round(v)+' mo');
+bindSlider('avg_monthly_usage_gb','val-usage', v=>Math.round(v)+' GB/mo');
+bindSlider('num_support_calls','val-calls', v=>Math.round(v));
+bindSlider('satisfaction_score','val-sat', v=>Math.round(v)+' / 5');
+bindSlider('monthly_charges','val-mc', v=>'$'+v.toFixed(2));
+
+document.querySelectorAll('.segmented').forEach(group=>{
+  const target = group.dataset.target;
+  group.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state[target] = btn.dataset.value;
+      update();
+    });
+  });
+});
+
+document.querySelectorAll('.toggle').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const isActive = btn.classList.toggle('active');
+    state[btn.dataset.target] = isActive ? btn.dataset.value : (btn.dataset.value==='Yes'?'No':'Yes');
+    update();
+  });
+});
+
+document.getElementById('payment_method').addEventListener('change', (e)=>{
+  state.payment_method = e.target.value;
+  update();
+});
+
+update();
+</script>
+</body>
+</html>
