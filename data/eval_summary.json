@@ -1,0 +1,51 @@
+{
+  "test_roc_auc": 0.8042671954757447,
+  "classification_report": {
+    "Stayed": {
+      "precision": 0.9194244604316547,
+      "recall": 0.6805111821086262,
+      "f1-score": 0.7821297429620563,
+      "support": 939.0
+    },
+    "Churned": {
+      "precision": 0.40594059405940597,
+      "recall": 0.7854406130268199,
+      "f1-score": 0.5352480417754569,
+      "support": 261.0
+    },
+    "accuracy": 0.7033333333333334,
+    "macro avg": {
+      "precision": 0.6626825272455303,
+      "recall": 0.732975897567723,
+      "f1-score": 0.6586888923687566,
+      "support": 1200.0
+    },
+    "weighted avg": {
+      "precision": 0.8077417194956906,
+      "recall": 0.7033333333333334,
+      "f1-score": 0.7284329729539709,
+      "support": 1200.0
+    }
+  },
+  "n_test": 1200,
+  "n_flagged_high_risk": 505,
+  "avg_monthly_charge_flagged": 63.61459405940594,
+  "estimated_annual_revenue_at_risk": 385504.44,
+  "top_features": {
+    "cat__contract_type_Month-to-month": 1.0724250486310103,
+    "cat__contract_type_Two year": -1.0621826301328332,
+    "num__tenure_months": -0.7079056468141025,
+    "cat__tech_support_Yes": -0.5091269429374992,
+    "num__num_support_calls": 0.4021351157238007,
+    "num__satisfaction_score": -0.3468435830745612,
+    "cat__online_security_Yes": -0.2996706014336566,
+    "cat__internet_service_DSL": -0.2748852553877753,
+    "cat__contract_type_One year": -0.2696657249605542,
+    "cat__payment_method_Mailed check": -0.26334374828106294,
+    "cat__payment_method_Credit card": -0.17583696956269848,
+    "num__monthly_charges": 0.1662633294761561,
+    "cat__payment_method_Electronic check": 0.14950752194210473,
+    "cat__internet_service_Fiber optic": 0.1254556952387404,
+    "cat__internet_service_No internet service": -0.10999374631334037
+  }
+}

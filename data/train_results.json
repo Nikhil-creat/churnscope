@@ -1,0 +1,33 @@
+{
+  "results": {
+    "logistic_regression": {
+      "cv_best_roc_auc": 0.7928173944749548,
+      "test_roc_auc": 0.8042671954757447,
+      "best_params": {
+        "clf__C": 1.0
+      },
+      "train_seconds": 1.1
+    },
+    "random_forest": {
+      "cv_best_roc_auc": 0.7780073556886211,
+      "test_roc_auc": 0.7847632804116224,
+      "best_params": {
+        "clf__max_depth": 5,
+        "clf__min_samples_leaf": 3,
+        "clf__n_estimators": 400
+      },
+      "train_seconds": 80.2
+    },
+    "gradient_boosting": {
+      "cv_best_roc_auc": 0.7849905647837773,
+      "test_roc_auc": 0.7916998192419586,
+      "best_params": {
+        "clf__learning_rate": 0.03,
+        "clf__max_depth": 2,
+        "clf__n_estimators": 300
+      },
+      "train_seconds": 66.6
+    }
+  },
+  "selected_model": "logistic_regression"
+}

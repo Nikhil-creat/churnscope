@@ -1,0 +1,133 @@
+{
+  "feature_names": [
+    "num__age",
+    "num__tenure_months",
+    "num__monthly_charges",
+    "num__total_charges",
+    "num__num_support_calls",
+    "num__satisfaction_score",
+    "num__avg_monthly_usage_gb",
+    "num__charges_per_tenure_month",
+    "cat__contract_type_Month-to-month",
+    "cat__contract_type_One year",
+    "cat__contract_type_Two year",
+    "cat__internet_service_DSL",
+    "cat__internet_service_Fiber optic",
+    "cat__internet_service_No internet service",
+    "cat__tech_support_Yes",
+    "cat__online_security_Yes",
+    "cat__streaming_service_Yes",
+    "cat__paperless_billing_Yes",
+    "cat__payment_method_Bank transfer",
+    "cat__payment_method_Credit card",
+    "cat__payment_method_Electronic check",
+    "cat__payment_method_Mailed check"
+  ],
+  "coefficients": [
+    -0.004704891650132074,
+    -0.7079056468141025,
+    0.1662633294761561,
+    0.06499907796840605,
+    0.4021351157238007,
+    -0.3468435830745612,
+    0.10505805270192617,
+    0.09696352493046265,
+    1.0724250486310103,
+    -0.2696657249605542,
+    -1.0621826301328332,
+    -0.2748852553877753,
+    0.1254556952387404,
+    -0.10999374631334037,
+    -0.5091269429374992,
+    -0.2996706014336566,
+    0.022270938089780107,
+    -0.10089924397776392,
+    0.030249889439282456,
+    -0.17583696956269848,
+    0.14950752194210473,
+    -0.26334374828106294
+  ],
+  "intercept": -0.2825361534076174,
+  "numeric_features": [
+    "age",
+    "tenure_months",
+    "monthly_charges",
+    "total_charges",
+    "num_support_calls",
+    "satisfaction_score",
+    "avg_monthly_usage_gb",
+    "charges_per_tenure_month"
+  ],
+  "numeric_means": [
+    45.14479166666667,
+    21.403958333333332,
+    57.809341666666676,
+    1238.9918833333334,
+    0.7889583333333333,
+    3.38625,
+    185.42970833333334,
+    57.714818652307656
+  ],
+  "numeric_scales": [
+    14.368254720271256,
+    19.218500878015014,
+    19.451600405020592,
+    1249.6381067695638,
+    0.9353269027086495,
+    0.9985293873992893,
+    141.16362403518926,
+    20.299061819871447
+  ],
+  "categorical_features": [
+    "contract_type",
+    "internet_service",
+    "tech_support",
+    "online_security",
+    "streaming_service",
+    "paperless_billing",
+    "payment_method"
+  ],
+  "categorical_categories": [
+    [
+      "Month-to-month",
+      "One year",
+      "Two year"
+    ],
+    [
+      "DSL",
+      "Fiber optic",
+      "No internet service"
+    ],
+    [
+      "No",
+      "Yes"
+    ],
+    [
+      "No",
+      "Yes"
+    ],
+    [
+      "No",
+      "Yes"
+    ],
+    [
+      "No",
+      "Yes"
+    ],
+    [
+      "Bank transfer",
+      "Credit card",
+      "Electronic check",
+      "Mailed check"
+    ]
+  ],
+  "drop_idx": [
+    null,
+    null,
+    0,
+    0,
+    0,
+    0,
+    null
+  ]
+}
